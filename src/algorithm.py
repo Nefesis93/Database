@@ -1,4 +1,4 @@
-def chiusura(r, f, x):
+def chiusuraF(r, f, x):
     def condition(f, out):
         s = set()
         for x in f:
@@ -6,36 +6,96 @@ def chiusura(r, f, x):
                 for y in x[1]:
                     s.add(y)
         return s
-    out = x
+    out = {elem for elem in x}
     s = condition(f, out)
-    while s - x != set():
+    while s - out != set():
         out |= s
-        s |= condition(f, out)
+        s = condition(f, out)
     return out
 
 def chiusuraG(r, f, x, ro):
     def subf(r, f, s, out, ro):
-        for subSch in ro:
-            s |= chiusura(r, f, out & subSch) & subSch
+        for subSch in RO:
+            s |= (chiusuraF(r, f, out & subSch) & subSch)
         return s
-    out = x
-    s = subf(r, f, set(), out, ro)
+    out = {elem for elem in x}
+    s |= subf(r, f, set(), out, ro)
     while s - out != set():
         out |= s
-        s = subf(r, f, s, out, ro)
+        s |= subf(r, f, s, out, ro)
     return out
 
-def checkSheme(r, f, ro):
+def scheme_preserveF(r, f, ro):
     for x in f:
-        print(x, "dipendenza")
         h = chiusuraG(r, f, x[0], ro)
-        print(h, "chiusura G")
         if x[1] - h != set():
             return False
     return True
 
+def scheme_no_information_lose(r, f, ro): # ------------da finire
+    matrix = []
+    r = list(r)
+    ro = list(ro)
+    mapR = dict()
+    mapRO = dict()
+    for i in range(len(r)):
+        mapR[r[i]] = i
+    for i in range(len(ro)):
+        mapRO[tuple(ro[i])] = i
+    for i in range(len(ro)):
+        l = []
+        for j in range(len(r)):
+            if r[j] in ro[i]:
+                l.append("a")
+            else:
+                l.append(f"b{i}{j}")
+        matrix.append(l)
+    change = True
+    print(mapR)
+    print(mapRO)
+    print(matrix)
+    while change:
+        for x in f:
+            for i in range(len(matrix)):
+                continue #proseguire da qui
+
+def get_minimalF(f): #-------------------------- da finire
+    def divide_dependencies(f): #step1
+        for i in reversed(range(len(f))):
+            if len(f[i][1]) > 1:
+                x = f[i][0]
+                y = f[i][1]
+                f.pop(i)
+                for elem in y:
+                    f.append([x, {elem}])
+        return f
+
+    def check_dependencies(f): #step2
+        def check_minimality(dip): #da scrivere
+            return False
+        for i in reversed(range(len(f))):
+            h = check_minimality(f[i])
+            if h:
+                f[i] = h
+        return f
+
+    def check_redoundance(f): #step3
+        for i in reversed(range(len(f))):
+            dip = f[i]
+            x_pre_remove = chiusuraF({}, f, dip[0])
+            f.pop(i)
+            x_post_remove = chiusuraF({}, f, dip[0])
+            if x_pre_remove != x_post_remove:
+                f.append(dip)
+        return f
+
+#    out = divide_dependencies(f) #ok
+#    out = check_dependencies(f)
+#    out = check_redoundance(f) #ok
+    return out
+
 def isKey(r, f, k):
-    confronto = chiusura(r, f, k)
+    confronto = chiusuraF(r, f, k)
     for x in r:
         if x not in confronto:
             return False
@@ -43,10 +103,8 @@ def isKey(r, f, k):
 
 
 
-R = {"A", "B", "C", "D"}
-F = [[{"A", "B"}, {"C"}], [{"D"}, {"C"}], [{"D"}, {"B"}], [{"C"}, {"B"}], [{"D"}, {"A"}]]
-RO = [{"A", "B", "C"}, {"A", "B", "D"}]
+R = {"A", "B", "C", "D", "E"}
+F = [[{"B", "C"}, {"E"}], [{"C"}, {"D"}], [{"B"}, {"D"}], [{"E"}, {"L"}], [{"D"}, {"A"}], [{"B"}, {"A"}], [{"B", "C"}, {"L"}]]
+RO = [{"A", "C"}, {"A", "D", "E"}, {"C", "D", "E"}, {"A", "D"}, {"B"}]
 
-print(checkSheme(R, F, RO))
 
-print(chiusuraG(R, F, {"D"}, RO), "chiusura G di D")
