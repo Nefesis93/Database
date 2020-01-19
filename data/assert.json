@@ -1,0 +1,4 @@
+{
+  "chiusuraF" : [[], ["A"], ["A", "B", "C"]],
+  "chiave" : ["False", "False", "True", "True"]
+}

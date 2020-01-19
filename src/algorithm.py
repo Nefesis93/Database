@@ -94,6 +94,26 @@ def get_minimalF(f): #-------------------------- da finire
 #    out = check_redoundance(f) #ok
     return out
 
+def decay(r, f):
+    #f = get_minimalF(f)
+    s = set()
+    ro = []
+    det_or_dip = {y for x in f for y in x[0]} | {y for x in f for y in x[1]}
+    for a in r:
+        if a not in det_or_dip:
+            s |= a
+    if s != set():
+        ro.append(s)
+        r = r - s
+    for x in f:
+        if x == [r - x[1], x[1]]:
+            ro.append(r)
+    else:
+        for x in f:
+            ro.append(x[0] | x[1])
+    return ro
+
+
 def isKey(r, f, k):
     confronto = chiusuraF(r, f, k)
     for x in r:
@@ -103,8 +123,10 @@ def isKey(r, f, k):
 
 
 
-R = {"A", "B", "C", "D", "E"}
-F = [[{"B", "C"}, {"E"}], [{"C"}, {"D"}], [{"B"}, {"D"}], [{"E"}, {"L"}], [{"D"}, {"A"}], [{"B"}, {"A"}], [{"B", "C"}, {"L"}]]
-RO = [{"A", "C"}, {"A", "D", "E"}, {"C", "D", "E"}, {"A", "D"}, {"B"}]
+R = {"A", "B", "C", "D", "E", "L"}
+F = [[{"B", "C"}, {"E"}], [{"C"}, {"D"}], [{"B"}, {"D"}], [{"E"}, {"L"}], [{"D"}, {"A"}]]
+#RO = [{"A", "C"}, {"A", "D", "E"}, {"C", "D", "E"}, {"A", "D"}, {"B"}]
 
+
+#print(decay(R, F))
 
